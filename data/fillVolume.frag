@@ -1,6 +1,6 @@
 #version 430
 
-layout(r16f) uniform image3D Volume;
+layout(rgba32f) uniform image3D Volume;
 
 uniform vec3 volumeRes = vec3(64);
 
@@ -13,7 +13,9 @@ void main() {
         vec3 volume_loc = vec3(gl_FragCoord.xy, d) / volumeRes;
         float dist = length(center - volume_loc);
         if ( dist < rad) {
-            imageStore(Volume, ivec3(loc, d), vec4(1));
+            vec3 norm = volume_loc - center;
+            norm = normalize(norm);
+            imageStore(Volume, ivec3(loc, d), vec4(norm, 1));
         }
     }
     discard;
