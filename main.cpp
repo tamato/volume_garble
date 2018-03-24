@@ -29,7 +29,7 @@ int WINDOW_WIDTH = 1024;
 int WINDOW_HEIGHT = 1024;
 GLFWwindow* glfwWindow;
 
-const int LayersCount = 128;
+const int LayersCount = 32;
 
 GLuint Volume = 0;
 MeshObject Quad;
