@@ -67,7 +67,12 @@ vec4 getSample4(in vec2 pos) {
 }
 
 vec4 getSample5(in vec2 pos) {
-    vec4 value = getSample(pos);
+    vec4 value = getSampleNormal(pos);
+    return value;
+}
+
+vec4 getSample6(in vec2 pos) {
+    vec4 value = getSampleNormal(pos);
     return value;
 }
 
