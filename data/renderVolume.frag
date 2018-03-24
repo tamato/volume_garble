@@ -3,15 +3,15 @@
 layout(location=0) in vec2 TexCoords;
 
 uniform sampler3D Volume;
-uniform vec3 volumeRes = vec3(64);
-uniform vec2 frameRes = vec2(512);
+uniform vec3 VolumeRes = vec3(64);
+uniform vec2 FrameRes = vec2(512);
 
 layout(location=0) out vec4 FragColor;
 
 vec4 getSampleNormal(in vec2 pos) {
     vec4 result = vec4(0);
-    for (int d=0; d<volumeRes.z; ++d) {
-        float w = d / volumeRes.z;
+    for (int d=0; d<VolumeRes.z; ++d) {
+        float w = d / VolumeRes.z;
         vec4 v = texture(Volume, vec3(pos, w));
         if (v.a > 0) result = v;
     }
@@ -21,8 +21,8 @@ vec4 getSampleNormal(in vec2 pos) {
 
 vec4 getSample(in vec2 pos) {
     vec4 result = vec4(0);
-    for (int d=0; d<volumeRes.z; ++d) {
-        float w = d / volumeRes.z;
+    for (int d=0; d<VolumeRes.z; ++d) {
+        float w = d / VolumeRes.z;
         float v = texture(Volume, vec3(pos, w)).a;
         if (v > 0) result = vec4(pos, w, v);
     }
@@ -43,7 +43,7 @@ vec4 getSampledFd(in vec2 pos) {
 
 vec4 getSample3(in vec2 pos) {
 
-    vec3 offset = vec3(1. / frameRes, 0);
+    vec3 offset = vec3(1. / FrameRes, 0);
     vec4 x_value = getSample( pos + offset.xz);
     vec4 y_value = getSample( pos + offset.yz);
 
@@ -55,7 +55,7 @@ vec4 getSample3(in vec2 pos) {
 
 vec4 getSample4(in vec2 pos) {
 
-    const vec2 invRes = 1. / frameRes;
+    const vec2 invRes = 1. / FrameRes;
     vec2 offset = vec2(invRes.x, -invRes.x);
 
     vec3 xyy = offset.xyy * getSample( pos + offset.xy ).w;
@@ -94,15 +94,18 @@ vec3 calcNormal( in vec3 pos )
 */
 
 void main() {
-    const vec2 invRes = frameRes * vec2(0.0000001);
+    // include this here just so that no errors are thrown if the use "getSample*"
+    //  is not using FrameRes
+    const vec2 invRes = FrameRes * vec2(0.0000001);
     vec2 offset = vec2(invRes.x, -invRes.x);
 
     vec4 value = vec4(0);
-    // value = getSample4( TexCoords );
+    value = getSample4( TexCoords );
     // value = getSample3( TexCoords );
     // value = getSampledFd( TexCoords );
     // value = getSample( TexCoords );
-    value = getSample5( TexCoords );
+    // value = getSample5( TexCoords );
+    // value = getSample6( TexCoords );
 
     vec3 normal = normalize(value.xyz);
     normal = abs(normal);

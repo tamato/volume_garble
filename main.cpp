@@ -209,7 +209,7 @@ void clearVolume() {
     glm::vec3 volume_res = glm::vec3(LayersCount);
     ClearVolumeShader.bind();
     ClearVolumeShader.setInt(1, "Volume");
-    ClearVolumeShader.setVec3((const float*)&volume_res, "volumeRes");
+    ClearVolumeShader.setVec3((const float*)&volume_res, "VolumeRes");
     Quad.render();    
 }
 
@@ -218,7 +218,7 @@ void fillVolume() {
     glm::vec3 volume_res = glm::vec3(LayersCount);
     FillVolumeShader.bind();
     FillVolumeShader.setInt(1, "Volume");
-    FillVolumeShader.setVec3((const float*)&volume_res, "volumeRes");
+    FillVolumeShader.setVec3((const float*)&volume_res, "VolumeRes");
 
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     Quad.render();    
@@ -232,8 +232,8 @@ void renderVolume() {
     glm::vec3 volume_res = glm::vec3(LayersCount);
     glm::vec2 frame_res = glm::vec2(WINDOW_WIDTH, WINDOW_HEIGHT);
     RenderVolumeShader.bind();
-    RenderVolumeShader.setVec3((const float*)&volume_res, "volumeRes");
-    RenderVolumeShader.setVec2((const float*)&frame_res, "frameRes");
+    RenderVolumeShader.setVec3((const float*)&volume_res, "VolumeRes");
+    RenderVolumeShader.setVec2((const float*)&frame_res, "FrameRes");
 
     Quad.render();    
     glBindTexture(GL_TEXTURE_3D, 0);
