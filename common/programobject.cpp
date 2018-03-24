@@ -66,6 +66,11 @@ void ProgramObject::setVec4(const float * vec, const char * name)
     glUniform4fv(Uniforms[name], 1, vec);
 }
 
+void ProgramObject::setVec3(const float * vec, const char * name)
+{
+    glUniform3fv(Uniforms[name], 1, vec);
+}
+
 void ProgramObject::setVec2(const float * vec, const char * name)
 {
     glUniform2fv(Uniforms[name], 1, vec);    

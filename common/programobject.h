@@ -22,6 +22,7 @@ namespace ogle
         void setInt(int val, const char * name);
         void setFloat(float val, const char * name);
         void setVec4(const float * vec, const char * name);
+        void setVec3(const float * vec, const char * name);
         void setVec2(const float * vec, const char * name);
         void setMatrix44(const float * mat, const char * name);
         void setMatrix33(const float * mat, const char * name);

@@ -29,7 +29,7 @@ int WINDOW_WIDTH = 1024;
 int WINDOW_HEIGHT = 1024;
 GLFWwindow* glfwWindow;
 
-const int LayersCount = 16;
+const int LayersCount = 64;
 
 GLuint Volume = 0;
 MeshObject Quad;
@@ -108,10 +108,11 @@ void createTextures() {
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RG16F, WINDOW_WIDTH, WINDOW_HEIGHT, LayersCount, 0, GL_RG, GL_FLOAT, 0);
+    glTexStorage3D(GL_TEXTURE_3D, 3, GL_R16F, LayersCount, LayersCount, LayersCount);
+    glGenerateMipmap(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, 0);
 
-    glBindImageTexture(1, Volume, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RG16F);
+    glBindImageTexture(1, Volume, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R16F);
 }
 
 void initQuad() {
@@ -201,15 +202,28 @@ void defaultRenderState() {
 }
 
 void fillVolume() {
+
+    glViewport(0,0,LayersCount, LayersCount);
+
+    glm::vec3 volume_res = glm::vec3(LayersCount);
     FillVolumeShader.bind();
     FillVolumeShader.setInt(1, "Volume");
+    FillVolumeShader.setVec3((const float*)&volume_res, "volumeRes");
     Quad.render();    
 }
 
 void renderVolume() {
+    glViewport(0,0,WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_3D, Volume);
+
+    glm::vec3 volume_res = glm::vec3(LayersCount);
     RenderVolumeShader.bind();
-    RenderVolumeShader.setInt(1, "Volume");
+    RenderVolumeShader.setVec3((const float*)&volume_res, "volumeRes");
+
     Quad.render();    
+    glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 void render(){

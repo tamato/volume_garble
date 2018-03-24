@@ -2,12 +2,22 @@
 
 layout(location=0) in vec2 TexCoords;
 
-uniform sampler2D FustrumVolume;
+uniform sampler3D Volume;
+uniform vec3 volumeRes = vec3(64);
 
 layout(location=0) out vec4 FragColor;
 
+vec4 getSample(in vec2 pos) {
+    vec4 result = vec4(0);
+    for (int d=0; d<volumeRes.z; ++d) {
+        float w = d / volumeRes.z;
+        float v = texture(Volume, vec3(pos, w)).r;
+        if (v > 0) result = vec4(pos, w, v);
+    }
+
+    return result;
+}
+
 void main() {
-    vec4 range = texture(FustrumVolume, TexCoords);
-    float thickness = range.g - range.r;
-    FragColor = vec4(.5, 0, 0, thickness * .01);
+    FragColor = getSample( TexCoords );
 }
