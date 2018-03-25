@@ -8,6 +8,7 @@ uniform vec2 FrameRes = vec2(512);
 
 layout(location=0) out vec4 FragColor;
 
+// the XYZ componets hold the normal at the hit location, W is the value found there.
 vec4 getSampleNormal(in vec3 pos) {
     vec4 result = vec4(0);
     for (int d=int(pos.z * VolumeRes.z); d<VolumeRes.z; ++d) {
@@ -19,6 +20,7 @@ vec4 getSampleNormal(in vec3 pos) {
     return result;
 }
 
+// the XYZ componets hold the ray to the hit location, W is the value found there.
 vec4 getSample(in vec3 pos) {
     vec4 result = vec4(0);
     for (int d=int(pos.z * VolumeRes.z); d<VolumeRes.z; ++d) {
@@ -44,12 +46,25 @@ vec4 getSampledFd(in vec3 pos) {
 vec4 getSample3(in vec3 pos) {
 
     vec3 offset = vec3(1. / FrameRes, 0);
-    vec4 x_value = getSample( pos + offset.xzz);
-    vec4 y_value = getSample( pos + offset.yzz);
+    offset = vec3(.1,.1,0);
+
+    vec4 curr = getSample( pos );
+    if (curr.w < 0.001) return vec4(0);
+
+    vec4 x_value = getSample( pos + offset.xzz ) - getSample( pos - offset.xzz );
+    vec4 y_value = getSample( pos + offset.yzz ) - getSample( pos - offset.yzz );
+
+    float curr_z = curr.z; // depth where the original is was found
+    float x_z = x_value.z; // change in z along X
+    float y_z = y_value.z; // change in z along Y
+
+    vec3 x_offset = offset.xzz;
+    vec3 y_offset = offset.yzz;
 
     // cross the rays that found something
-    vec4 value = getSample(pos);
-    value.xyz = cross( y_value.xyz, x_value.xyz );
+    // vec4 value = vec4(cross( y_value.xyz, x_value.xyz ), 1);
+    // vec4 value = x_value;
+    vec4 value = vec4(curr_z, x_z, y_z, 1);
     return value;
 }
 
@@ -86,9 +101,9 @@ vec4 getSample6(in vec3 pos) {
     vec3 offset = vec3(invRes.x, 0, 0);
 
     vec4 value = vec4(
-        getSample(pos + offset.xyy).w - getSample(pos-offset.xyy).w,
-        getSample(pos + offset.yxy).w - getSample(pos-offset.yxy).w,
-        getSample(pos + offset.yyx).w - getSample(pos-offset.yyx).w,
+        getSample(pos + offset.xyy).z - getSample(pos-offset.xyy).z,
+        getSample(pos + offset.yxy).z - getSample(pos-offset.yxy).z,
+        getSample(pos + offset.yyx).z - getSample(pos-offset.yyx).z,
         1);
     return value;
 /*
@@ -98,6 +113,23 @@ vec4 getSample6(in vec3 pos) {
         map(pos+eps.yxy).x - map(pos-eps.yxy).x,
         map(pos+eps.yyx).x - map(pos-eps.yyx).x );
 */
+}
+
+vec4 getSample7(in vec3 pos) {
+    vec4 curr = getSample( pos );
+    if (curr.w < 0.001) return vec4(0);
+
+    // vec3 invRes = vec3(1. / FrameRes, 0);
+    vec3 invRes = 1. / VolumeRes;
+    invRes.xy = vec2(.01, .01);
+    invRes.z = 0;
+    vec3 offset = invRes;
+
+    float x = getSample( pos - offset.xzz ).w - getSample( pos + offset.xzz ).w;
+    float y = getSample( pos - offset.zyz ).w - getSample( pos + offset.zyz ).w;
+    vec4 value = vec4(1);
+    value.xyz = vec3(x, y, 1 - abs(x) - abs(y) );
+    return value;
 }
 
 void main() {
@@ -112,7 +144,8 @@ void main() {
     // value = getSample3( vec3(TexCoords, 0) );
     // value = getSample4( vec3(TexCoords, 0) );
     // value = getSample5( vec3(TexCoords, 0) );
-    value = getSample6( vec3(TexCoords, 0) );
+    // value = getSample6( vec3(TexCoords, 0) );
+    value = getSample7( vec3(TexCoords, 0) );
 
     vec3 normal = normalize(value.xyz);
     normal = abs(normal);
