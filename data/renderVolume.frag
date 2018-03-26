@@ -132,6 +132,13 @@ vec4 getSample7(in vec3 pos) {
     return value;
 }
 
+change resolution to a high value to check smoothness
+    too blue atm...
+
+divide x & y by sample count... or distance? (2*offset)?
+    i think its meant to normalize it, check on paper?
+
+
 void main() {
     // include this here just so that no errors are thrown if the use "getSample*"
     //  is not using FrameRes
